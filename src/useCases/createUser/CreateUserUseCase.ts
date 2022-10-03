@@ -2,6 +2,7 @@ import { User } from "../../entities/User";
 import { IUsersRepositories } from "../../repositories/IUsersRepositories";
 import { CreateUserDTO } from './CreateUserDTO';
 import { AppError } from '../../error/AppError';
+import { hash } from "bcrypt";
 
 export class CreateUserUseCase{
 
@@ -17,7 +18,14 @@ export class CreateUserUseCase{
          throw new AppError('Name/Email/Password is required', 422);
       }
 
-      const user: User = new User(data);
+      const passwordHash = await hash(data.password, 8);
+
+      const user: User = new User({
+         name: data.name,
+         email: data.email,
+         password: passwordHash
+      });
+
       await this.userRepository.save(user);
 
    }
